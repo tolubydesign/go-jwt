@@ -1,0 +1,19 @@
+{
+  "restartable": "rs",
+  "verbose": true,
+  "ignore": [
+    ".git"
+  ],
+  "execMap": {
+    "go": "golang"
+  },
+  "watch": [
+    "request/**",
+    "utils/**",
+    "helper/**",
+    "controller/**",
+    "config/**",
+    "handler/**",
+    "main.go"
+  ]
+}
