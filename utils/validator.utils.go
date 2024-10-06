@@ -15,33 +15,6 @@ func ValidUuid(u string) bool {
 	return err == nil
 }
 
-// NOTE: The Laws of Reflection - https://go.dev/blog/laws-of-reflection
-func ValidateLimitedStringVariable(str string) error {
-	value := reflect.TypeOf(str)
-	if value.Kind() != reflect.String {
-		return errors.New("variable is not a valid string")
-	}
-
-	if strings.ReplaceAll(str, " ", "") == "" {
-		return errors.New("valid string must be provided")
-	}
-
-	if len(str) > 255 {
-		return errors.New("string is too long")
-	}
-
-	return nil
-}
-
-func AdditionalStringValidation(str string) error {
-	value := reflect.TypeOf(str)
-	if value.Kind() != reflect.String {
-		return errors.New("additional validation found. Invalid value provided")
-	}
-
-	return nil
-}
-
 func ValidateString(str string) error {
 	value := reflect.TypeOf(str)
 	if value.Kind() != reflect.String {
@@ -69,13 +42,3 @@ func EmailValidation(str string) error {
 
 	return nil
 }
-
-// Validate that role provided is correct
-// Roles can only be `admin` or `user`. Default is `user`
-// func UserRoleCheck(role string) string {
-// 	if role == "admin" {
-// 		return "admin"
-// 	} else {
-// 		return "user"
-// 	}
-// }

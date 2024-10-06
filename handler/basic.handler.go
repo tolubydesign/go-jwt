@@ -36,27 +36,3 @@ var ErrorHandler = func(ctx *fiber.Ctx, err error) error {
 	// Return from handler
 	return nil
 }
-
-// Basic method to handle request responses
-func HandleResponse(context ResponseHandlerParameters) error {
-	c := context.Context
-	if c == nil {
-		return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprint("Request context was not provided. Message: ", context.Message))
-	}
-
-	c.Response().StatusCode()
-	c.Set(fiber.HeaderContentType, fiber.MIMEApplicationJSON)
-
-	return c.Status(context.Code).JSON(fiber.Map{
-		"error":   context.Error,
-		"code":    context.Code,
-		"message": context.Message,
-		"data":    context.Data,
-	})
-}
-
-// func HandleError(context ResponseHandlerParameters) error {
-// 	c := context.Context
-
-// 	return fiber.NewError(fiber.StatusInternalServerError, error.Error(err))
-// }

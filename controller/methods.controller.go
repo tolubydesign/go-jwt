@@ -17,7 +17,7 @@ func SetupMethods(app *fiber.App, configuration *config.Config) {
 		return request.BuildJSONWebToken(ctx, configuration)
 	})
 
-	app.Get(utils.GET_verify, func(ctx *fiber.Ctx) error {
-		return request.VerifyJSONWebToken(ctx, configuration)
+	app.Get(utils.GET_translate, func(ctx *fiber.Ctx) error {
+		return request.TranslateJsonWebToken(ctx, configuration)
 	})
 }

@@ -32,7 +32,6 @@ func AuthenticateUserToken(ctx *fiber.Ctx, c *config.Config) error {
 	tokenString := strings.Replace(tokenHeader, "Bearer ", "", -1)
 
 	// Verify that token
-	log.Println("AuthenticateUserToken . verifying jwt token: ", tokenString)
 	jwtToken, fiberErr := utils.JWTVerification(tokenString)
 	if fiberErr != nil {
 		fmt.Errorf("AuthenticateUserToken . jwt verification. fiber error: %s", fiberErr.Message)
@@ -47,16 +46,15 @@ func AuthenticateUserToken(ctx *fiber.Ctx, c *config.Config) error {
 
 	// Get Claims
 	claims := jwtToken.Claims.(jwt.MapClaims)
-	// TODO: check issuer & expiration date
-	_, err := claims.GetIssuer()
+	iss, err := claims.GetIssuer()
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, err.Error())
 	}
 
 	// check server issuer matches request issuer
-	// if iss != c.JWT.Issuer {
-	// 	return fiber.NewError(fiber.StatusUnauthorized, "invalid token")
-	// }
+	if iss != c.JWT.Issuer {
+		return fiber.NewError(fiber.StatusUnauthorized, "invalid token")
+	}
 
 	log.Printf("AuthenticateUserToken . claims: %v", claims)
 	ctx.Response().StatusCode()
@@ -67,6 +65,7 @@ func AuthenticateUserToken(ctx *fiber.Ctx, c *config.Config) error {
 	})
 }
 
+// Request that builds and returns a JSON Web Token, based on user details the requester provides
 func BuildJSONWebToken(ctx *fiber.Ctx, c *config.Config) error {
 	// get user information from request body
 	var err error
@@ -85,6 +84,16 @@ func BuildJSONWebToken(ctx *fiber.Ctx, c *config.Config) error {
 		return err
 	}
 
+	// validate email and name
+	err = utils.EmailValidation(body.Email)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+	err = utils.ValidateString(body.Name)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, err.Error())
+	}
+
 	user := struct {
 		Id    string `json:"id"`
 		Name  string `json:"name"`
@@ -96,7 +105,7 @@ func BuildJSONWebToken(ctx *fiber.Ctx, c *config.Config) error {
 
 	token, err := utils.BuildUserJWT(user)
 	if err != nil {
-		return fiber.NewError(fiber.StatusBadGateway, err.Error())
+		return fiber.NewError(fiber.StatusInternalServerError, err.Error())
 	}
 
 	ctx.Response().StatusCode()
@@ -107,13 +116,40 @@ func BuildJSONWebToken(ctx *fiber.Ctx, c *config.Config) error {
 	})
 }
 
-func VerifyJSONWebToken(ctx *fiber.Ctx, c *config.Config) error {
-	// TODO: complete
+// Request to expose the content of a json web token.
+func TranslateJsonWebToken(ctx *fiber.Ctx, c *config.Config) error {
+	// Get token from header
+	log.Println("TranslateJsonWebToken . capturing jwt token")
+	tokenHeader := helper.GetRequestHeader(ctx, "Authentication")
+	if tokenHeader == "" {
+		return fiber.NewError(fiber.StatusInternalServerError, "no token found")
+	}
 
+	// find auth substring
+	found := strings.Contains(tokenHeader, "Bearer ")
+	if !found {
+		return fiber.NewError(fiber.StatusInternalServerError, "invalid token provide")
+	}
+
+	// Remove token string start
+	tokenString := strings.Replace(tokenHeader, "Bearer ", "", -1)
+
+	// Verify that token
+	jwtToken, fiberErr := utils.JWTVerification(tokenString)
+	if fiberErr != nil {
+		fmt.Errorf("TranslateJsonWebToken . jwt verification. fiber error: %s", fiberErr.Message)
+		return fiber.NewError(fiberErr.Code, fiberErr.Message)
+	}
+
+	if jwtToken == nil {
+		return fiber.NewError(fiber.StatusBadRequest, "token untranslatable")
+	}
+
+	// Get Claims
+	claims := jwtToken.Claims.(jwt.MapClaims)
 	ctx.Response().StatusCode()
 	ctx.Response().Header.Add("Content-Type", "application/json")
 	return ctx.JSON(fiber.Map{
-		"message": "authorized",
-		"valid":   true,
+		"claims": claims,
 	})
 }

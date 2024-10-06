@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -12,10 +11,9 @@ import (
 
 // Verify jwt token provided.
 // Confirm that it came from us.
-// Confirm that it hasn't expired.
 func JWTVerification(token string) (*jwt.Token, *fiber.Error) {
 	// var tkn jwt.Token
-	fmt.Println("JWTVerification . verifying jwt token.")
+	log.Println("JWTVerification . verifying jwt token.")
 	// Initialize a new instance of `Claims`
 	fiberErr := &fiber.Error{}
 	configuration, err := config.GetConfiguration()
@@ -36,20 +34,20 @@ func JWTVerification(token string) (*jwt.Token, *fiber.Error) {
 		return nil, fiberErr
 	}
 
-	fmt.Println("JWTVerification . attempting to parsing jwt token.")
+	log.Println("JWTVerification . attempting to parsing jwt token.")
 	tkn, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
 		return secretString, nil
 	})
 
 	// parsing errors result
 	if err != nil {
-		fmt.Println("JWTVerification . token parse error", err.Error())
+		log.Println("JWTVerification . token parse error", err.Error())
 		fiberErr.Code = fiber.StatusUnauthorized
 		fiberErr.Message = err.Error()
 		return nil, fiberErr
 	}
 
-	fmt.Println("JWTVerification . token validation check.")
+	log.Println("JWTVerification . token validation check.")
 	if !tkn.Valid {
 		log.Println("in tkn invalid", tkn)
 		fiberErr.Code = fiber.StatusUnauthorized
@@ -67,7 +65,6 @@ func BuildUserJWT(u struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 }) (string, error) {
-	// TODO: log security event
 	// Get secret key from config
 	configuration, err := config.GetConfiguration()
 	if err != nil {
@@ -76,7 +73,6 @@ func BuildUserJWT(u struct {
 
 	jwtConfig := configuration.JWT
 	secret := configuration.JWT.Secret
-	// fmt.Println("jwt config", configuration.JWT.Issuer)
 
 	// Declare the expiration time of the token.
 	now := time.Now()
@@ -86,10 +82,10 @@ func BuildUserJWT(u struct {
 	// Create the JWT claims, which includes the username and expiry time
 	// jwt.MapClaims
 	claims := struct {
-		Id                   string `json:"id"`
-		Email                string `json:"email"`
-		Name                 string `json:"name"`
-		jwt.RegisteredClaims `json:"username"`
+		Id    string `json:"id,omitempty"`
+		Email string `json:"email,omitempty"`
+		Name  string `json:"name,omitempty"`
+		jwt.RegisteredClaims
 	}{
 		Id:               u.Id,
 		Email:            u.Email,

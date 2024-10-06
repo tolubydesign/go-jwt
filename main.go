@@ -19,8 +19,6 @@ func main() {
 	}
 
 	fmt.Println("environment", c.Environment)
-	fmt.Println("configuration issuer", c.JWT.Issuer)
-	fmt.Println("configuration secret", c.JWT.Secret)
 	port := "3255"
 	app := fiber.New(fiber.Config{
 		CaseSensitive: true,
