@@ -3,14 +3,15 @@ module github.com/tolubydesign/go-jwt
 go 1.22.5
 
 require (
+	github.com/gofiber/fiber/v2 v2.52.5
+	github.com/golang-jwt/jwt/v5 v5.2.2
+	github.com/google/uuid v1.5.0
+	github.com/joho/godotenv v1.5.1
+)
+
+require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
-	github.com/gofiber/fiber/v2 v2.52.5 // indirect
-	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
-	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
-	github.com/google/uuid v1.5.0 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/klauspost/compress v1.17.0 // indirect
-	github.com/lpernett/godotenv v0.0.0-20230527005122-0de1d4c5ef5e // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.15 // indirect
